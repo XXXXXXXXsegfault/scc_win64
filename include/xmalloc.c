@@ -8,7 +8,6 @@ void *xmalloc(long int size)
 		write(2,"FATAL: cannot allocate memory.\n",31);
 		exit(1);
 	}
-	memset(ptr,0,size);
 	return ptr;
 }
 long int __str_size(long int size)
