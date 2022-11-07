@@ -1,6 +1,6 @@
 void ins_init_xchg(void)
 {
-	ins_add("xchg %L2,%L1",0,"\x87",1,0,0,RR,0);
+	ins_add("xchg %L2,%L1",0,"\x87",1,0,0,RR|I_MODRM,0);
 	ins_add("xchg %eax,%ecx",0,"\x91",1,0,0,0,0);
 	ins_add("xchg %eax,%edx",0,"\x92",1,0,0,0,0);
 	ins_add("xchg %eax,%ebx",0,"\x93",1,0,0,0,0);
@@ -33,7 +33,7 @@ void ins_init_xchg(void)
 	ins_add("xchg %r15d,%eax",0,"\x97",1,0x41,0,0,0);
 	ins_add("xchg %eax,%eax",0,"\x87\xc0",2,0,0,0,0);
 
-	ins_add("xchg %Q2,%Q1",0,"\x87",1,0x48,0,RR,0);
+	ins_add("xchg %Q2,%Q1",0,"\x87",1,0x48,0,RR|I_MODRM,0);
 	ins_add("xchg %rax,%rcx",0,"\x91",1,0x48,0,0,0);
 	ins_add("xchg %rax,%rdx",0,"\x92",1,0x48,0,0,0);
 	ins_add("xchg %rax,%rbx",0,"\x93",1,0x48,0,0,0);
@@ -66,7 +66,7 @@ void ins_init_xchg(void)
 	ins_add("xchg %r15,%rax",0,"\x97",1,0x49,0,0,0);
 	ins_add("xchg %rax,%rax",0,"\x87\xc0",2,0x48,0,0,0);
 
-	ins_add("xchg %W2,%W1","\x66","\x87",1,0,0,RR,0);
+	ins_add("xchg %W2,%W1","\x66","\x87",1,0,0,RR|I_MODRM,0);
 	ins_add("xchg %ax,%cx","\x66","\x91",1,0,0,0,0);
 	ins_add("xchg %ax,%dx","\x66","\x92",1,0,0,0,0);
 	ins_add("xchg %ax,%bx","\x66","\x93",1,0,0,0,0);
@@ -99,7 +99,7 @@ void ins_init_xchg(void)
 	ins_add("xchg %r15w,%ax","\x66","\x97",1,0x41,0,0,0);
 	ins_add("xchg %ax,%ax","\x66","\x87\xc0",2,0,0,0,0);
 
-	ins_add("xchg %B2,%B1",0,"\x86",1,0,0,RR,0);
+	ins_add("xchg %B2,%B1",0,"\x86",1,0,0,RR|I_MODRM,0);
 
 	ins_add("xchg %L2,ADDR",0,"\x87",1,0,0,RM,0);
 	ins_add("xchg ADDR,%L2",0,"\x87",1,0,0,RM,0);
