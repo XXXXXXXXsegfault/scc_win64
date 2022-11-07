@@ -317,7 +317,7 @@ int parse_reg8(char **str)
 	{
 		return 9;
 	}
-	if(str_match2(str,"r10b",3))
+	if(str_match2(str,"r10b",4))
 	{
 		return 10;
 	}
