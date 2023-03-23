@@ -66,6 +66,11 @@ void gen_div(struct ins *ins)
 	{
 		error(ins->line,"invalid op.");
 	}
+	if(op1.tab->class==9)
+	{
+		gen_float_basic_op(class1,class2,class3,&op1,&op2,&op3,"divsd ");
+		return;
+	}
 	if(class2==1)
 	{
 		outs("mov ");
@@ -136,15 +141,53 @@ void gen_div(struct ins *ins)
 	}
 	if(op1.tab->class==1||op1.tab->class==2)
 	{
-		outs("xor %ah,%ah\n");
+		if(sign)
+		{
+			outs("mov %al,%ah\n");
+			outs("shr $7,%ah");
+			outs("neg %ah\n");
+		}
+		else
+		{
+			outs("xor %ah,%ah");
+		}
 	}
 	else
 	{
-		outs("xor ");
-		out_rdx(op1.tab->class);
-		outs(",");
-		out_rdx(op1.tab->class);
-		outs("\n");
+		if(sign)
+		{
+			outs("mov ");
+			out_rax(op1.tab->class);
+			outs(",");
+			out_rdx(op1.tab->class);
+			outs("\n");
+			outs("shr $");
+			if(op1.tab->class==3||op1.tab->class==4)
+			{
+				outs("15,");
+			}
+			else if(op1.tab->class==5||op1.tab->class==6)
+			{
+				outs("31,");
+			}
+			else
+			{
+				outs("63,");
+			}
+			out_rdx(op1.tab->class);
+			outs("\n");
+			outs("neg ");
+			out_rdx(op1.tab->class);
+			outs("\n");
+		}
+		else
+		{
+			outs("xor ");
+			out_rdx(op1.tab->class);
+			outs(",");
+			out_rdx(op1.tab->class);
+			outs("\n");
+		}
 	}
 	if(sign)
 	{

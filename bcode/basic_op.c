@@ -1,3 +1,175 @@
+void gen_float_basic_op(int class1,int class2,int class3,struct operand *op1,struct operand *op2,struct operand *op3,char *ins)
+{
+	if(class2==1&&class3==1)
+	{
+		if(op2->tab->class==9&&op3->tab->class==9)
+		{
+			outs("movq ");
+			op_out_reg(8,op2);
+			outs(",%xmm0\nmovq ");
+			op_out_reg(8,op3);
+			outs(",%xmm1\n");
+			outs(ins);
+			outs("%xmm1,%xmm0\n");
+			if(class1==0)
+			{
+				outs("movsd %xmm0,");
+				op_out_mem(op1);
+			}
+			else
+			{
+				outs("movq %xmm0,");
+				op_out_reg(8,op1);
+			}
+			outs("\n");
+			return;
+		}
+	}
+	if(class2==0&&class3==1)
+	{
+		if(op2->tab->class==9&&op3->tab->class==9)
+		{
+			outs("movsd ");
+			op_out_mem(op2);
+			outs(",%xmm0\nmovq ");
+			op_out_reg(8,op3);
+			outs(",%xmm1\n");
+			outs(ins);
+			outs("%xmm1,%xmm0\n");
+			if(class1==0)
+			{
+				outs("movsd %xmm0,");
+				op_out_mem(op1);
+			}
+			else
+			{
+				outs("movq %xmm0,");
+				op_out_reg(8,op1);
+			}
+			outs("\n");
+			return;
+		}
+	}
+	if(class2==1&&class3==0)
+	{
+		if(op2->tab->class==9&&op3->tab->class==9)
+		{
+			outs("movq ");
+			op_out_reg(8,op2);
+			outs(",%xmm0\n");
+			outs(ins);
+			op_out_mem(op3);
+			outs(",%xmm0\n");
+			if(class1==0)
+			{
+				outs("movsd %xmm0,");
+				op_out_mem(op1);
+			}
+			else
+			{
+				outs("movq %xmm0,");
+				op_out_reg(8,op1);
+			}
+			outs("\n");
+			return;
+		}
+	}
+	if(class2==0&&class3==0)
+	{
+		if(op2->tab->class==9&&op3->tab->class==9)
+		{
+			outs("movsd ");
+			op_out_mem(op2);
+			outs(",%xmm0\n");
+			outs(ins);
+			op_out_mem(op3);
+			outs(",%xmm0\n");
+			if(class1==0)
+			{
+				outs("movsd %xmm0,");
+				op_out_mem(op1);
+			}
+			else
+			{
+				outs("movq %xmm0,");
+				op_out_reg(8,op1);
+			}
+			outs("\n");
+			return;
+		}
+	}
+	if(class2==3)
+	{
+		outs("lea ");
+		op_out_mem(op2);
+		outs(",%rax\n");
+	}
+	else if(class2==0)
+	{
+		outs("mov ");
+		op_out_mem(op2);
+		outs(",");
+		out_rax(op2->tab->class);
+		outs("\n");
+		acd_extend(0,op1->tab->class,op2->tab->class);
+	}
+	else if(class2==1)
+	{
+		outs("mov ");
+		op_out_reg(8,op2);
+		outs(",%rax\n");
+		acd_extend(0,op1->tab->class,op2->tab->class);
+	}
+	else
+	{
+		outs("mov ");
+		op_out_const(9,op2);
+		outs(",%rax\n");
+	}
+	if(class3==3)
+	{
+		outs("lea ");
+		op_out_mem(op3);
+		outs(",%rcx\n");
+	}
+	else if(class3==0)
+	{
+		outs("mov ");
+		op_out_mem(op3);
+		outs(",");
+		out_rcx(op3->tab->class);
+		outs("\n");
+		acd_extend(1,op1->tab->class,op3->tab->class);
+	}
+	else if(class3==1)
+	{
+		outs("mov ");
+		op_out_reg(8,op3);
+		outs(",%rcx\n");
+		acd_extend(1,op1->tab->class,op3->tab->class);
+	}
+	else
+	{
+		outs("mov $");
+		op_out_const(9,op3);
+		outs(",%rax\n");
+	}
+	outs("movq %rax,%xmm0\n");
+	outs("movq %rcx,%xmm1\n");
+	outs(ins);
+	outs("%xmm1,%xmm0\n");
+	if(class1==0)
+	{
+		outs("movsd %xmm0,");
+		op_out_mem(op1);
+	}
+	else
+	{
+		outs("movq %xmm0,");
+		op_out_reg(8,op1);
+	}
+	outs("\n");
+}
 void gen_basic_op(struct ins *ins,char *op)
 {
 	struct operand op1,op2,op3;
@@ -47,6 +219,18 @@ void gen_basic_op(struct ins *ins,char *op)
 	if(class1==2||class1==3)
 	{
 		error(ins->line,"invalid op.");
+	}
+	if(op1.tab->class==9&&(!strcmp(op,"add")||!strcmp(op,"sub")))
+	{
+		if(!strcmp(op,"add"))
+		{
+			gen_float_basic_op(class1,class2,class3,&op1,&op2,&op3,"addsd ");
+		}
+		else
+		{
+			gen_float_basic_op(class1,class2,class3,&op1,&op2,&op3,"subsd ");
+		}
+		return;
 	}
 	if(class1==0)
 	{
@@ -176,20 +360,6 @@ void gen_basic_op(struct ins *ins,char *op)
 					}
 				}
 			}
-			else if(class3==0&&!needs_convert(&op3,&op1))
-			{
-				if(!opcmp(&op2,&op1))
-				{
-					out_ins(op,0,0,&op3,&op1,0,op1.tab->class);
-					return;
-				}
-				else
-				{
-					out_ins("mov",0,0,&op2,&op1,0,op1.tab->class);
-					out_ins(op,0,0,&op3,&op1,0,op1.tab->class);
-					return;
-				}
-			}
 		}
 		else if(class2==3)
 		{
@@ -224,12 +394,6 @@ void gen_basic_op(struct ins *ins,char *op)
 				}
 			}
 			else if(class3==1&&opcmp(&op1,&op3))
-			{
-				out_ins("mov",0,0,&op2,&op1,0,op1.tab->class);
-				out_ins(op,0,0,&op3,&op1,0,op1.tab->class);
-				return;
-			}
-			else if(class3==0)
 			{
 				out_ins("mov",0,0,&op2,&op1,0,op1.tab->class);
 				out_ins(op,0,0,&op3,&op1,0,op1.tab->class);

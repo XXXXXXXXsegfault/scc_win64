@@ -25,7 +25,10 @@ void gen_push(struct ins *ins)
 	}
 	if(class1==1)
 	{
-		reg_extend(7,op1.tab->class,&op1);
+		if(op1.tab->class<7)
+		{
+			reg_extend(7,op1.tab->class,&op1);
+		}
 		outs("push ");
 		op_out_reg(7,&op1);
 		outs("\n");
@@ -45,7 +48,10 @@ void gen_push(struct ins *ins)
 			outs(",");
 			out_rax(op1.tab->class);
 			outs("\n");
-			acd_extend(0,7,op1.tab->class);
+			if(op1.tab->class<7)
+			{
+				acd_extend(0,7,op1.tab->class);
+			}
 		}
 		else if(class1==3)
 		{
@@ -58,7 +64,7 @@ void gen_push(struct ins *ins)
 		outs("push %rax\n");
 	}
 }
-void gen_call(struct ins *ins)
+void gen_call(struct ins *ins,int if_float)
 {
 	struct operand op1,op2;
 	int class1,class2;
@@ -133,6 +139,14 @@ void gen_call(struct ins *ins)
 	{
 		return;
 	}
+	if(if_float)
+	{
+		acd_extend(0,op1.tab->class,9);
+	}
+	else
+	{
+		acd_extend(0,op1.tab->class,8);
+	}
 	if(class1==1)
 	{
 		outs("mov ");
@@ -175,7 +189,10 @@ void gen_retval(struct ins *ins)
 	}
 	if(class1==1)
 	{
-		reg_extend(7,op1.tab->class,&op1);
+		if(op1.tab->class<7)
+		{
+			reg_extend(7,op1.tab->class,&op1);
+		}
 		outs("mov ");
 		op_out_reg(7,&op1);
 		outs(",%rax\n");
@@ -195,7 +212,10 @@ void gen_retval(struct ins *ins)
 			outs(",");
 			out_rax(op1.tab->class);
 			outs("\n");
-			acd_extend(0,7,op1.tab->class);
+			if(op1.tab->class<7)
+			{
+				acd_extend(0,7,op1.tab->class);
+			}
 		}
 		else if(class1==3)
 		{

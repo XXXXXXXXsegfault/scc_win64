@@ -267,6 +267,51 @@ unsigned long int const_to_num(char *str)
 	}
 	return ret;
 }
+unsigned long int fconst_to_num(char *str,int *status)
+{
+	unsigned long int ret;
+	int x;
+	x=0;
+	*status=0;
+	if(str[0]<'0'||str[0]>'9')
+	{
+		return 0;
+	}
+	while(str[x])
+	{
+		if(str[x]=='.')
+		{
+			float a,b;
+			int s;
+			x=0;
+			s=0;
+			a=0.0;
+			b=0.1;
+			while(str[x])
+			{
+				if(str[x]=='.')
+				{
+					s=1;
+				}
+				else if(s)
+				{
+					a+=b*(float)(str[x]-'0');
+					b*=0.1;
+				}
+				else
+				{
+					a=a*10.0+(float)(str[x]-'0');
+				}
+				++x;
+			}
+			memcpy(&ret,&a,8);
+			*status=1;
+			return ret;
+		}
+		++x;
+	}
+	return 0;
+}
 
 void ins_add(char *str)
 {
@@ -384,6 +429,10 @@ void ins_add(char *str)
 			{
 				node->op=5;
 			}
+			if(!strcmp(node->args[0],"stf"))
+			{
+				node->op=5;
+			}
 			if(!strcmp(node->args[0],"ldb"))
 			{
 				node->op=6;
@@ -397,6 +446,10 @@ void ins_add(char *str)
 				node->op=6;
 			}
 			if(!strcmp(node->args[0],"ldq"))
+			{
+				node->op=6;
+			}
+			if(!strcmp(node->args[0],"ldf"))
 			{
 				node->op=6;
 			}
@@ -519,6 +572,12 @@ void load_global_vars(void)
 				{
 					size=8;
 					class=8;
+					name=node->args[2];
+				}
+				else if(!strcmp(node->args[1],"float"))
+				{
+					size=8;
+					class=9;
 					name=node->args[2];
 				}
 				else
@@ -785,6 +844,12 @@ void load_local_vars(void)
 					unused=1;
 					name=node->args[2];
 				}
+				else if(!strcmp(node->args[1],"float"))
+				{
+					size=8;
+					class=9;
+					name=node->args[2];
+				}
 				else
 				{
 					error(node->line,"invalid type.");
@@ -820,7 +885,7 @@ void reg_init(void)
 	long int num;
 	long int off,size;
 	struct id_list *il;
-	char c;
+	char c,c1;
 	ins=ins_head;
 	while(ins)
 	{
@@ -845,11 +910,25 @@ void reg_init(void)
 				ins->var_num[x-1]=0;
 				if(x>=2)
 				{
+					int y;
+					y=0;
+					while(c1=ins->args[x][y])
+					{
+						if(c1=='.')
+						{
+							break;
+						}
+						++y;
+					}
 					c=ins->args[x][0];
-					if(c>='0'&&c<='9'||c=='\'')
+					if(c>='0'&&c<='9'&&c1!='.'||c=='\'')
 					{
 						ins->is_const[x-2]=1;
 						ins->const_val[x-2]=const_to_num(ins->args[x]);
+					}
+					else if(c>='0'&&c<='9')
+					{
+						ins->is_const[x-2]=1;
 					}
 				}
 			}
@@ -963,6 +1042,11 @@ void reg_init(void)
 				else if(!strcmp(ins->args[1],"void"))
 				{
 					class=8;
+					name=ins->args[2];
+				}
+				else if(!strcmp(ins->args[1],"float"))
+				{
+					class=9;
 					name=ins->args[2];
 				}
 				else
@@ -1104,6 +1188,11 @@ void reg_init(void)
 					name=ins->args[2];
 				}
 				else if(!strcmp(ins->args[1],"void"))
+				{
+					size=8;
+					name=ins->args[2];
+				}
+				else if(!strcmp(ins->args[1],"float"))
 				{
 					size=8;
 					name=ins->args[2];

@@ -84,144 +84,10 @@ void gen_branch(struct ins *ins,char *op_1,char *op_2,char *op_3,char *op_4)
 			c=8;
 		}
 	}
-	/*
-	if(class1==1)
+	if(c==9)
 	{
-		if(class2==1)
-		{
-			reg_extend(c,op1.tab->class,&op1);
-			reg_extend(c,op2.tab->class,&op2);
-			outs("cmp ");
-			op_out_reg(c,&op2);
-			outs(",");
-			op_out_reg(c,&op1);
-			outs("\n");
-			if(sign)
-			{
-				outs(op_1);
-			}
-			else
-			{
-				outs(op_2);
-			}
-			outs(" @_$LB");
-			outs(ins->args[3]);
-			outs("\n");
-			last_store_valid=0;
-			return;
-		}
-		else if(class2==0)
-		{
-			reg_extend(c,op1.tab->class,&op1);
-			outs("cmp ");
-			op_out_mem(&op2);
-			outs(",");
-			op_out_reg(c,&op1);
-			outs("\n");
-			if(sign)
-			{
-				outs(op_1);
-			}
-			else
-			{
-				outs(op_2);
-			}
-			outs(" @_$LB");
-			outs(ins->args[3]);
-			outs("\n");
-			last_store_valid=0;
-			return;
-		}
-		else if(class2==2&&op2.type==2&&(c<7||op2.value<=0x7fffffff||op2.value>=0xffffffff80000000))
-		{
-			if(op2.value==0&&(!strcmp(op_1,"je")||!strcmp(op_1,"jne")))
-			{
-				out_ins("test",0,0,&op1,&op1,0,op1.tab->class);
-				outs(op_1);
-				outs(" @_$LB");
-				outs(ins->args[3]);
-				outs("\n");
-				last_store_valid=0;
-				return;
-			}
-			reg_extend(c,op1.tab->class,&op1);
-			outs("cmp $");
-			op_out_const(c,&op2);
-			outs(",");
-			op_out_reg(c,&op1);
-			outs("\n");
-			if(sign)
-			{
-				outs(op_1);
-			}
-			else
-			{
-				outs(op_2);
-			}
-			outs(" @_$LB");
-			outs(ins->args[3]);
-			outs("\n");
-			last_store_valid=0;
-			return;
-		}
+		sign=0;
 	}
-	else if(class1==0)
-	{
-		if(class2==1)
-		{
-			out_ins_acd1("mov",0,0,&op1,0,c);
-			out_ins_acd1("cmp",0,0,&op2,0,c);
-			if(sign)
-			{
-				outs(op_1);
-			}
-			else
-			{
-				outs(op_2);
-			}
-			outs(" @_$LB");
-			outs(ins->args[3]);
-			outs("\n");
-			last_store_valid=0;
-			return;
-		}
-		else if(class2==2&&op2.type==2&&(c<7||op2.value<=0x7fffffff||op2.value>=0xffffffff80000000))
-		{
-			out_ins("cmp",get_len(c),0,&op2,&op1,0,c);
-			if(sign)
-			{
-				outs(op_1);
-			}
-			else
-			{
-				outs(op_2);
-			}
-			outs(" @_$LB");
-			outs(ins->args[3]);
-			outs("\n");
-			last_store_valid=0;
-			return;
-		}
-		else if(class2==0)
-		{
-			out_ins_acd1("mov",0,0,&op2,0,c);
-			out_ins_acd2("cmp",0,0,0,&op1,c);
-			if(sign)
-			{
-				outs(op_1);
-			}
-			else
-			{
-				outs(op_2);
-			}
-			outs(" @_$LB");
-			outs(ins->args[3]);
-			outs("\n");
-			last_store_valid=0;
-			return;
-		}
-	}
-	*/
 	if(class1==1)
 	{
 		outs("mov ");
@@ -290,11 +156,21 @@ void gen_branch(struct ins *ins,char *op_1,char *op_2,char *op_3,char *op_4)
 		out_rcx(8);
 		outs("\n");
 	}
-	outs("cmp ");
-	out_rcx(c);
-	outs(",");
-	out_rax(c);
-	outs("\n");
+	if(c==9)
+	{
+		outs("movq %rax,%xmm0\n");
+		outs("movq %rcx,%xmm1\n");
+		outs("comisd ");
+		outs("%xmm1,%xmm0\n");
+	}
+	else
+	{
+		outs("cmp ");
+		out_rcx(c);
+		outs(",");
+		out_rax(c);
+		outs("\n");
+	}
 	if(sign)
 	{
 		outs(op_1);

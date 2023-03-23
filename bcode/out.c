@@ -242,6 +242,10 @@ void out_reg(int class,int reg)
 	{
 		out_reg64(reg);
 	}
+	else if(class==9)
+	{
+		out_reg64(reg);
+	}
 }
 char *get_len(int class)
 {
@@ -299,9 +303,17 @@ void out_num(int class,unsigned long int n)
 	{
 		out_num64(n);
 	}
+	else if(class==9)
+	{
+		out_num64(n);
+	}
 }
 void out_rax(int class)
 {
+	if(class==9)
+	{
+		class=8;
+	}
 	if(class==1||class==2)
 	{
 		outs("%al");
@@ -321,6 +333,10 @@ void out_rax(int class)
 }
 void out_rcx(int class)
 {
+	if(class==9)
+	{
+		class=8;
+	}
 	if(class==1||class==2)
 	{
 		outs("%cl");
@@ -340,6 +356,10 @@ void out_rcx(int class)
 }
 void out_rdx(int class)
 {
+	if(class==9)
+	{
+		class=8;
+	}
 	if(class==1||class==2)
 	{
 		outs("%dl");
@@ -375,6 +395,28 @@ void out_acd(int class,int reg)
 void acd_extend(int reg,int newclass,int oldclass)
 {
 	int size1,size2;
+	if(newclass==9)
+	{
+		if(oldclass!=9)
+		{
+			acd_extend(reg,7,oldclass);
+			outs("push ");
+			out_acd(8,reg);
+			outs("\nfildq (%rsp)\nfstpl (%rsp)\npop ");
+			out_acd(8,reg);
+			outs("\n");
+		}
+		return;
+	}
+	else if(oldclass==9)
+	{
+		outs("push ");
+		out_acd(8,reg);
+		outs("\nfldl (%rsp)\nfistpq (%rsp)\npop ");
+		out_acd(8,reg);
+		outs("\n");
+		return;
+	}
 	size1=newclass-1>>1;
 	size2=oldclass-1>>1;
 	if(size1<=size2)

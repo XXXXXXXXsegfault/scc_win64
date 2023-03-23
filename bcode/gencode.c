@@ -4,11 +4,14 @@ struct operand
 	long int type;
 	struct id_tab *tab;
 	unsigned long int value;
+	long int fvalue;
+	long int is_float;
 	char *str;
 };
 void get_operand(struct ins *ins,int index,struct operand *ret)
 {
 	char *str;
+	int s;
 	memset(ret,0,sizeof(*ret));
 	if(index>=ins->count_args)
 	{
@@ -30,6 +33,8 @@ void get_operand(struct ins *ins,int index,struct operand *ret)
 	else if(str[0]>='0'&&str[0]<='9'||str[0]=='\'')
 	{
 		ret->type=2;
+		ret->fvalue=fconst_to_num(str,&s);
+		ret->is_float=s;
 		ret->value=const_to_num(str);
 	}
 	else
@@ -67,9 +72,35 @@ int op_is_addr(struct operand *op)
 }
 void op_out_const(int class,struct operand *op)
 {
+	unsigned long val;
+	float fval;
 	if(op->type==2)
 	{
-		out_num(class,op->value);
+		if(class==9)
+		{
+			if(op->is_float)
+			{
+				out_num(class,op->fvalue);
+			}
+			else
+			{
+				fval=(float)op->value;
+				memcpy(&val,&fval,8);
+				out_num(class,val);
+			}
+		}
+		else
+		{
+			if(op->is_float)
+			{
+				val=(long)op->fvalue;
+				out_num(class,val);
+			}
+			else
+			{
+				out_num(class,op->value);
+			}
+		}
 	}
 	else if(op->type==3)
 	{
@@ -173,6 +204,10 @@ void op_out_mem_off(struct operand *op,struct operand *off)
 }
 int if_class_signed(int class)
 {
+	if(class==9)
+	{
+		return 0;
+	}
 	if(class&1)
 	{
 		return 1;
@@ -239,6 +274,28 @@ int opcmp(struct operand *op1,struct operand *op2)
 void reg_extend(int class,int old_class,struct operand *op)
 {
 	int size1,size2;
+	if(class==9)
+	{
+		if(old_class!=9)
+		{
+			reg_extend(7,old_class,op);
+			outs("push ");
+			op_out_reg(8,op);
+			outs("\nfildq (%rsp)\nfstpl (%rsp)\npop ");
+			op_out_reg(8,op);
+			outs("\n");
+		}
+		return;
+	}
+	else if(old_class==9)
+	{
+		outs("push ");
+		op_out_reg(8,op);
+		outs("\nfldl (%rsp)\nfistpq (%rsp)\npop ");
+		op_out_reg(8,op);
+		outs("\n");
+		return;
+	}
 	size1=class-1>>1;
 	size2=old_class-1>>1;
 	if(size1<=size2)
@@ -302,10 +359,6 @@ void reg_extend(int class,int old_class,struct operand *op)
 }
 void out_ins_acd1(char *ins1,char *ins2,char *ins3,struct operand *op1,int reg,int class)
 {
-	if(op_is_reg(op1))
-	{
-		reg_extend(class,op1->tab->class,op1);
-	}
 	outs(ins1);
 	if(ins2)
 	{
@@ -320,22 +373,37 @@ void out_ins_acd1(char *ins1,char *ins2,char *ins3,struct operand *op1,int reg,i
 	{
 		if(op_is_reg(op1))
 		{
-			op_out_reg(class,op1);
+			op_out_reg(op1->tab->class,op1);
+			outs(",");
+			out_acd(op1->tab->class,reg);
 		}
 		else if(op_is_const(op1))
 		{
 			outs("$");
 			op_out_const(class,op1);
+			outs(",");
+			out_acd(class,reg);
 		}
 		else
 		{
 			op_out_mem(op1);
+			outs(",");
+			if(op_is_addr(op1))
+			{
+				out_acd(8,reg);
+			}
+			else
+			{
+				out_acd(class,reg);
+			}
 		}
-		outs(",");
 	}
-	out_acd(class,reg);
 	outs("\n");
-	if(!op_is_reg(op1)&&!op_is_const(op1)&&!op_is_addr(op1))
+	if(op_is_addr(op1))
+	{
+		acd_extend(reg,class,8);
+	}
+	else if(!op_is_const(op1))
 	{
 		acd_extend(reg,class,op1->tab->class);
 	}
@@ -402,7 +470,7 @@ void out_ins(char *ins1,char *ins2,char *ins3,struct operand *op1,struct operand
 			class=op1->tab->class;
 		}
 	}
-	if(op_is_reg(op1))
+	if(op_is_reg(op1)&&op1->tab->class!=9&&op2->tab->class!=9)
 	{
 		reg_extend(class,op1->tab->class,op1);
 	}
@@ -594,91 +662,43 @@ void gen_code(struct ins *ins)
 		}
 		else if(!strcmp(ins->args[0],"ldb"))
 		{
-			if(ins->op==15)
-			{
-				gen_ldo(ins,1);
-			}
-			else
-			{
-				gen_ld(ins,1);
-			}
+			gen_ld(ins,1);
 		}
 		else if(!strcmp(ins->args[0],"ldw"))
 		{
-			if(ins->op==15)
-			{
-				gen_ldo(ins,3);
-			}
-			else
-			{
-				gen_ld(ins,3);
-			}
+			gen_ld(ins,3);
 		}
 		else if(!strcmp(ins->args[0],"ldl"))
 		{
-			if(ins->op==15)
-			{
-				gen_ldo(ins,5);
-			}
-			else
-			{
-				gen_ld(ins,5);
-			}
+			gen_ld(ins,5);
 		}
 		else if(!strcmp(ins->args[0],"ldq"))
 		{
-			if(ins->op==15)
-			{
-				gen_ldo(ins,7);
-			}
-			else
-			{
-				gen_ld(ins,7);
-			}
+			gen_ld(ins,7);
+		}
+		else if(!strcmp(ins->args[0],"ldf"))
+		{
+			gen_ld(ins,9);
 		}
 		else if(!strcmp(ins->args[0],"stb"))
 		{
-			if(ins->op==16)
-			{
-				gen_sto(ins,1);
-			}
-			else
-			{
-				gen_st(ins,1);
-			}
+			gen_st(ins,1);
 		}
 		else if(!strcmp(ins->args[0],"stw"))
 		{
-			if(ins->op==16)
-			{
-				gen_sto(ins,3);
-			}
-			else
-			{
-				gen_st(ins,3);
-			}
+			gen_st(ins,3);
 		}
 		else if(!strcmp(ins->args[0],"stl"))
 		{
-			if(ins->op==16)
-			{
-				gen_sto(ins,5);
-			}
-			else
-			{
-				gen_st(ins,5);
-			}
+			gen_st(ins,5);
 		}
 		else if(!strcmp(ins->args[0],"stq"))
 		{
-			if(ins->op==16)
-			{
-				gen_sto(ins,7);
-			}
-			else
-			{
-				gen_st(ins,7);
-			}
+			gen_st(ins,7);
+		}
+		else if(!strcmp(ins->args[0],"stf"))
+		{
+			gen_st(ins,9);
 		}
 		else if(!strcmp(ins->args[0],"push"))
 		{
@@ -686,7 +706,11 @@ void gen_code(struct ins *ins)
 		}
 		else if(!strcmp(ins->args[0],"call"))
 		{
-			gen_call(ins);
+			gen_call(ins,0);
+		}
+		else if(!strcmp(ins->args[0],"fcall"))
+		{
+			gen_call(ins,1);
 		}
 		else if(!strcmp(ins->args[0],"retval"))
 		{

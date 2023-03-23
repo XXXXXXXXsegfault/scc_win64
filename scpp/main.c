@@ -78,7 +78,12 @@ char *read_line(int fd)
 		{
 			if(read(fd,&c,1)==1)
 			{
-				if(c=='\n')
+				if(c=='\r')
+				{
+					read(fd,&c,1);
+					++current_line;
+				}
+				else if(c=='\n')
 				{
 					++current_line;
 				}

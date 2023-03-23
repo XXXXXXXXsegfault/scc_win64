@@ -42,17 +42,18 @@ void gen_mov(struct ins *ins)
 			outs("mov ");
 			op_out_mem(&op2);
 			outs(",");
-			op_out_reg(op1.tab->class,&op1);
+			op_out_reg(op2.tab->class,&op1);
 			outs("\n");
+			reg_extend(op1.tab->class,op2.tab->class,&op1);
 		}
 		else if(class2==1)
 		{
-			reg_extend(op1.tab->class,op2.tab->class,&op2);
 			outs("mov ");
-			op_out_reg(op1.tab->class,&op2);
+			op_out_reg(op2.tab->class,&op2);
 			outs(",");
-			op_out_reg(op1.tab->class,&op1);
+			op_out_reg(op2.tab->class,&op1);
 			outs("\n");
+			reg_extend(op1.tab->class,op2.tab->class,&op1);
 		}
 		else if(class2==2)
 		{
@@ -89,9 +90,14 @@ void gen_mov(struct ins *ins)
 		}
 		else if(class2==1)
 		{
-			reg_extend(op1.tab->class,op2.tab->class,&op2);
 			outs("mov ");
-			op_out_reg(op1.tab->class,&op2);
+			op_out_reg(op2.tab->class,&op2);
+			outs(",");
+			out_rax(op2.tab->class);
+			outs("\n");
+			acd_extend(0,op1.tab->class,op2.tab->class);
+			outs("mov ");
+			out_rax(op1.tab->class);
 			outs(",");
 			op_out_mem(&op1);
 			outs("\n");

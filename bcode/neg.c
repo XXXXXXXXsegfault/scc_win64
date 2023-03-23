@@ -31,6 +31,48 @@ void gen_neg(struct ins *ins)
 	{
 		class2=3;
 	}
+	if((class1==0||class1==1)&&op1.tab->class==9)
+	{	
+		if(class2==3)
+		{
+			outs("lea ");
+			op_out_mem(&op2);
+			outs(",%rcx\n");
+		}
+		else if(class2==0)
+		{
+			outs("mov ");
+			op_out_mem(&op2);
+			outs(",");
+			out_rcx(op2.tab->class);
+			outs("\n");
+			acd_extend(1,op1.tab->class,op2.tab->class);
+		}
+		else if(class2==1)
+		{
+			outs("mov ");
+			op_out_reg(8,&op2);
+			outs(",%rcx\n");
+			acd_extend(1,op1.tab->class,op2.tab->class);
+		}
+		else
+		{
+			outs("mov ");
+			op_out_const(9,&op2);
+			outs(",%rcx\n");
+		}
+		outs("push %rcx\nfldl (%rsp)\nfchs\nfstpl (%rsp)\npop ");
+		if(class1==0)
+		{
+			op_out_mem(&op1);
+		}
+		else
+		{
+			op_out_reg(8,&op1);
+		}
+		outs("\n");
+		return;
+	}
 	if(class1==1)
 	{
 		if(class2==0)
@@ -46,12 +88,12 @@ void gen_neg(struct ins *ins)
 		}
 		else if(class2==1)
 		{
-			reg_extend(op1.tab->class,op2.tab->class,&op2);
 			outs("mov ");
-			op_out_reg(op1.tab->class,&op2);
+			op_out_reg(op2.tab->class,&op2);
 			outs(",");
-			op_out_reg(op1.tab->class,&op1);
+			op_out_reg(op2.tab->class,&op1);
 			outs("\n");
+			reg_extend(op1.tab->class,op2.tab->class,&op1);
 			outs("neg ");
 			op_out_reg(op1.tab->class,&op1);
 			outs("\n");
@@ -101,11 +143,17 @@ void gen_neg(struct ins *ins)
 		else if(class2==1)
 		{
 			reg_extend(op1.tab->class,op2.tab->class,&op2);
+			outs("mov ");
+			op_out_reg(op2.tab->class,&op2);
+			outs(",");
+			out_rax(op2.tab->class);
+			outs("\n");
+			acd_extend(0,op1.tab->class,op2.tab->class);
 			outs("neg ");
-			op_out_reg(op1.tab->class,&op2);
+			out_rax(op1.tab->class);
 			outs("\n");
 			outs("mov ");
-			op_out_reg(op1.tab->class,&op2);
+			out_rax(op1.tab->class);
 			outs(",");
 			op_out_mem(&op1);
 			outs("\n");

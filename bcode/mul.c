@@ -67,6 +67,11 @@ void gen_mul(struct ins *ins)
 	{
 		error(ins->line,"invalid op.");
 	}
+	if(op1.tab->class==9)
+	{
+		gen_float_basic_op(class1,class2,class3,&op1,&op2,&op3,"mulsd ");
+		return;
+	}
 	if(class3==2&&op3.type==2)
 	{
 		if(class1==1&&class2==1)

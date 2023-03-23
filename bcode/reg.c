@@ -140,36 +140,6 @@ void init_def_use(void)
 					node->valdef[x>>6]|=a<<(x&63);
 				}
 			}
-			else if(node->op==15)
-			{
-				if(id->num==node->var_num[2])
-				{
-					node->valuse[x>>6]|=a<<(x&63);
-				}
-				else if(id->num==node->var_num[1])
-				{
-					node->valuse[x>>6]|=a<<(x&63);
-				}
-				else if(id->num==node->var_num[0])
-				{
-					node->valdef[x>>6]|=a<<(x&63);
-				}
-			}
-			else if(node->op==16)
-			{
-				if(id->num==node->var_num[2])
-				{
-					node->valuse[x>>6]|=a<<(x&63);
-				}
-				else if(id->num==node->var_num[1])
-				{
-					node->valuse[x>>6]|=a<<(x&63);
-				}
-				else if(id->num==node->var_num[0])
-				{
-					node->valuse[x>>6]|=a<<(x&63);
-				}
-			}
 			else if(node->op==3)
 			{
 				if(id->num==node->var_num[0])

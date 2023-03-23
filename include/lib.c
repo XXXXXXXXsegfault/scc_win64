@@ -5,6 +5,7 @@
 #ifdef __linux__
 #include <unistd.h>
 #endif
+#define float double
 #else
 #include "windows.c"
 #include "mem.c"
