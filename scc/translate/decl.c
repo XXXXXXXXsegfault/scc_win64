@@ -314,11 +314,11 @@ int check_decl2(struct syntax_tree *type,struct syntax_tree *decl)
 	{
 		if(id->def)
 		{
-			error(type->line,type->col,"identifier redefined.");
+			error(decl->line,decl->col,"identifier redefined.");
 		}
 		if(type_cmp(type,decl,id->type,id->decl))
 		{
-			error(type->line,type->col,"identifier redeclared as different type.");
+			error(decl->line,decl->col,"identifier redeclared as different type.");
 		}
 		return 1;
 	}
@@ -608,6 +608,10 @@ unsigned long int type_size(struct syntax_tree *type,struct syntax_tree *decl)
 		{
 			return 8;
 		}
+		if(!strcmp(type->name,"float"))
+		{
+			return 8;
+		}
 		if(!strcmp(type->name,"struct"))
 		{
 			mlist=get_struct_member_list(type,0);
@@ -657,6 +661,10 @@ int is_basic_type(struct syntax_tree *type)
 	{
 		return 1;
 	}
+	if(!strcmp(type->name,"float"))
+	{
+		return 1;
+	}
 	return 0;
 }
 int is_basic_decl(struct syntax_tree *decl)
@@ -664,6 +672,14 @@ int is_basic_decl(struct syntax_tree *decl)
 	struct syntax_tree *decl1;
 	decl1=get_decl_type(decl);
 	if(!strcmp(decl1->name,"Identifier"))
+	{
+		return 1;
+	}
+	return 0;
+}
+int is_float_type(struct syntax_tree *type)
+{
+	if(!strcmp(type->name,"float"))
 	{
 		return 1;
 	}
@@ -777,7 +793,14 @@ int is_void(struct syntax_tree *type,struct syntax_tree *decl)
 }
 int if_type_compat(struct syntax_tree *type,struct syntax_tree *decl,struct syntax_tree *type2,struct syntax_tree *decl2,int option)
 {
+	int s1,s2;
 	if(is_void(type,decl)||is_void(type2,decl2))
+	{
+		return 1;
+	}
+	s1=is_float_type(type)&&is_basic_decl(decl);
+	s2=is_float_type(type2)&&is_basic_decl(decl2);
+	if(s1!=s2)
 	{
 		return 1;
 	}

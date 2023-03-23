@@ -136,6 +136,47 @@ unsigned long int const_to_num(char *str)
 	}
 	return ret;
 }
+float fconst_to_num(char *str)
+{
+	int s;
+	char c;
+	float n,n1;
+	s=0;
+	n=0.0;
+	n1=0.1;
+	while(c=*str)
+	{
+		if(c=='.')
+		{
+			if(!s)
+			{
+				s=1;
+			}
+			else
+			{
+				break;
+			}
+		}
+		if(c>='0'&&c<='9')
+		{
+			if(s)
+			{
+				n+=n1*(float)(c-'0');
+				n1*=0.1;
+			}
+			else
+			{
+				n=n*10.0+(float)(c-'0');
+			}
+		}
+		else
+		{
+			break;
+		}
+		++str;
+	}
+	return n;
+}
 struct syntax_tree *get_addr(struct syntax_tree *decl)
 {
 	struct syntax_tree *decl1,*ret,*node;
@@ -207,6 +248,24 @@ void calculate_const(struct syntax_tree *root,struct expr_ret *ret)
 		ret->value=const_to_num(root->value);
 	}
 }
+void calculate_fconst(struct syntax_tree *root,struct expr_ret *ret)
+{
+	char *t_name;
+	t_name=mktmpname();
+	ret->is_lval=0;
+	ret->is_const=0;
+	ret->needs_deref=0;
+	ret->type=mkst("float",0,root->line,root->col);
+	ret->decl=mkst("Identifier",t_name,root->line,root->col);
+	c_write("local float ",12);
+	c_write(t_name,strlen(t_name));
+	c_write("\n",1);
+	c_write("mov ",4);
+	c_write(t_name,strlen(t_name));
+	c_write(" ",1);
+	c_write(root->value,strlen(root->value));
+	c_write("\n",1);
+}
 void deref_ptr(struct expr_ret *ret,int line,int col)
 {
 	char *str,*old_name;
@@ -258,6 +317,10 @@ void deref_ptr(struct expr_ret *ret,int line,int col)
 		else if(!strcmp(ret->type->name,"s64")||!strcmp(ret->type->name,"u64"))
 		{
 			size="q ";
+		}
+		else if(!strcmp(ret->type->name,"float"))
+		{
+			size="f ";
 		}
 		old_name=t->value;
 		t->value=str;
@@ -377,6 +440,10 @@ void calculate_expr(struct syntax_tree *root,struct expr_ret *ret)
 	else if(!strcmp(root->name,"Constant"))
 	{
 		calculate_const(root,ret);
+	}
+	else if(!strcmp(root->name,"FConstant"))
+	{
+		calculate_fconst(root,ret);
 	}
 	else if(!strcmp(root->name,","))
 	{

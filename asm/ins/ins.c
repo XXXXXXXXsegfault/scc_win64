@@ -62,6 +62,7 @@ void ins_add(char *format,char *prefix,char *opcode,int opcode_len,int rex,int m
 #include "xchg.c"
 #include "io.c"
 #include "system.c"
+#include "fpu.c"
 #include "sse.c"
 #include "avx.c"
 void ins_write(char *input)
@@ -112,6 +113,7 @@ void ins_init(void)
 	ins_init_xchg();
 	ins_init_io();
 	ins_init_system();
+	ins_init_fpu();
 	ins_init_sse();
 	ins_init_avx();
 }

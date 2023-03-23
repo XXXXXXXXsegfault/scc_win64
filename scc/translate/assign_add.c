@@ -42,7 +42,8 @@ void calculate_assign_add(struct syntax_tree *root,struct expr_ret *ret)
 		}
 		
 		new_type=syntax_tree_dup(left.type);
-		new_decl=array_function_to_pointer(left.decl);
+		//new_decl=array_function_to_pointer(left.decl);
+		new_decl=array_function_to_pointer(decl1);
 		decl2=get_decl_type(new_decl);
 		if(!strcmp(decl2->name,"Identifier"))
 		{
@@ -56,7 +57,11 @@ void calculate_assign_add(struct syntax_tree *root,struct expr_ret *ret)
 		}
 		add_decl(new_type,new_decl,0,0,0,1);
 
-		if(size==1)
+		if(is_float_type(left.type)&&is_basic_decl(decl1))
+		{
+			c_write("ldf ",4);
+		}
+		else if(size==1)
 		{
 			c_write("ldb ",4);
 		}
@@ -97,7 +102,11 @@ void calculate_assign_add(struct syntax_tree *root,struct expr_ret *ret)
 		c_write(str,strlen(str));
 		c_write("\n",1);
 		free(str);
-		if(size==1)
+		if(is_float_type(left.type)&&is_basic_decl(decl1))
+		{
+			c_write("stf ",4);
+		}
+		else if(size==1)
 		{
 			c_write("stb ",4);
 		}

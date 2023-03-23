@@ -44,7 +44,11 @@ void calculate_assign(struct syntax_tree *root,struct expr_ret *ret,char *op1,ch
 				error(root->line,root->col,"invalid use of union.");
 			}
 			size=type_size(left.type,decl1);
-			if(size==1)
+			if(is_float_type(left.type)&&is_basic_decl(decl1))
+			{
+				c_write("f ",2);
+			}
+			else if(size==1)
 			{
 				c_write("b ",2);
 			}

@@ -1,4 +1,4 @@
-char *basic_type_str[7];
+char *basic_type_str[8];
 struct syntax_tree *parse_decl(void);
 struct syntax_tree *parse_type(void);
 struct syntax_tree *parse_id_null(void)
@@ -12,7 +12,7 @@ struct syntax_tree *parse_id_null(void)
 }
 struct syntax_tree *parse_basic_type(void)
 {
-	int t[6];
+	int t[7];
 	int x;
 	long int l,c;
 	l=line;
@@ -23,6 +23,7 @@ struct syntax_tree *parse_basic_type(void)
 	t[3]=0;
 	t[4]=0;
 	t[5]=0;
+	t[6]=0;
 	if(!strcmp(cstr,"void"))
 	{
 		next();
@@ -40,6 +41,14 @@ struct syntax_tree *parse_basic_type(void)
 	if(t[0]+t[1]>1||t[4]+t[5]>1||t[2]&&t[3])
 	{
 		error(line,col,"invalid type.");
+	}
+	if(t[6])
+	{
+		if(t[6]>1||t[0]||t[1]||t[2]||t[3]||t[4]||t[5])
+		{
+			error(line,col,"invalid type.");
+		}
+		return mkst("float",0,l,c);
 	}
 	if(t[0])
 	{
@@ -321,4 +330,5 @@ void type_global_init(void)
 	basic_type_str[3]="long";
 	basic_type_str[4]="unsigned";
 	basic_type_str[5]="signed";
+	basic_type_str[6]="float";
 }

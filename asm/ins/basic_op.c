@@ -100,6 +100,10 @@ void ins_init_basic_op(void)
 	ins_add("shl %cl,%Q1",0,"\xd3",1,0x48,0x20,I_REG1|I_MODRM,0);
 	ins_add("shl %cl,%W1","\x66","\xd3",1,0,0x20,I_REG1|I_MODRM,0);
 	ins_add("shl %cl,%B1",0,"\xd2",1,0,0x20,I_REG1|I_MODRM,0);
+	ins_add("shll $I,ADDR",0,"\xc1",1,0,0x20,I8M|I_U,0);
+	ins_add("shlq $I,ADDR",0,"\xc1",1,0x48,0x20,I8M|I_U,0);
+	ins_add("shll $I,ADDR","\x66","\xc1",1,0,0x20,I8M|I_U,0);
+	ins_add("shlb $I,ADDR",0,"\xc0",1,0,0x20,I8M|I_U,0);
 
 	ins_add("shr $I,%L1",0,"\xc1",1,0,0x28,I8R|I_U|I_MODRM,0);
 	ins_add("shr $I,%Q1",0,"\xc1",1,0x48,0x28,I8R|I_U|I_MODRM,0);
@@ -109,6 +113,10 @@ void ins_init_basic_op(void)
 	ins_add("shr %cl,%Q1",0,"\xd3",1,0x48,0x28,I_REG1|I_MODRM,0);
 	ins_add("shr %cl,%W1","\x66","\xd3",1,0,0x28,I_REG1|I_MODRM,0);
 	ins_add("shr %cl,%B1",0,"\xd2",1,0,0x28,I_REG1|I_MODRM,0);
+	ins_add("shrl $I,ADDR",0,"\xc1",1,0,0x28,I8M|I_U,0);
+	ins_add("shrq $I,ADDR",0,"\xc1",1,0x48,0x28,I8M|I_U,0);
+	ins_add("shrl $I,ADDR","\x66","\xc1",1,0,0x28,I8M|I_U,0);
+	ins_add("shrb $I,ADDR",0,"\xc0",1,0,0x28,I8M|I_U,0);
 
 	ins_add("sar $I,%L1",0,"\xc1",1,0,0x38,I8R|I_U|I_MODRM,0);
 	ins_add("sar $I,%Q1",0,"\xc1",1,0x48,0x38,I8R|I_U|I_MODRM,0);
@@ -118,6 +126,10 @@ void ins_init_basic_op(void)
 	ins_add("sar %cl,%Q1",0,"\xd3",1,0x48,0x38,I_REG1|I_MODRM,0);
 	ins_add("sar %cl,%W1","\x66","\xd3",1,0,0x38,I_REG1|I_MODRM,0);
 	ins_add("sar %cl,%B1",0,"\xd2",1,0,0x38,I_REG1|I_MODRM,0);
+	ins_add("sarl $I,ADDR",0,"\xc1",1,0,0x38,I8M|I_U,0);
+	ins_add("sarq $I,ADDR",0,"\xc1",1,0x48,0x38,I8M|I_U,0);
+	ins_add("sarl $I,ADDR","\x66","\xc1",1,0,0x38,I8M|I_U,0);
+	ins_add("sarb $I,ADDR",0,"\xc0",1,0,0x38,I8M|I_U,0);
 
 	ins_add("push %rax",0,"\x50",1,0,0,0,0);
 	ins_add("push %rcx",0,"\x51",1,0,0,0,0);
@@ -227,6 +239,33 @@ void ins_init_basic_op(void)
 	ins_add("add %B2,ADDR",0,"\x00",1,0,0,RM,0);
 	ins_add("add ADDR,%B2",0,"\x02",1,0,0,RM,0);
 
+	ins_add("adc %L2,%L1",0,"\x11",1,0,0,RR|I_MODRM,0);
+	ins_add("adc %Q2,%Q1",0,"\x11",1,0x48,0,RR|I_MODRM,0);
+	ins_add("adc %W2,%W1","\x66","\x11",1,0,0,RR|I_MODRM,0);
+	ins_add("adc %B2,%B1",0,"\x10",1,0,0,RR|I_MODRM,0);
+	ins_add("adc $I,%L1",0,"\x81",1,0,0x10,I32R|I_MODRM|I_U,0);
+	ins_add("adc $I,%L1",0,"\x83",1,0,0x10,I8R|I_MODRM,0);
+	ins_add("adc $I,%Q1",0,"\x81",1,0x48,0x10,I32R|I_MODRM,0);
+	ins_add("adc $I,%Q1",0,"\x83",1,0x48,0x10,I8R|I_MODRM,0);
+	ins_add("adc $I,%W1","\x66","\x81",1,0,0x10,I16R|I_MODRM|I_U,0);
+	ins_add("adc $I,%W1","\x66","\x83",1,0,0x10,I8R|I_MODRM,0);
+	ins_add("adc $I,%B1",0,"\x80",1,0,0x10,I8R|I_MODRM|I_U,0);
+	ins_add("adcl $I,ADDR",0,"\x81",1,0,0x10,I32M|I_U,0);
+	ins_add("adcl $I,ADDR",0,"\x83",1,0,0x10,I8M,0);
+	ins_add("adcq $I,ADDR",0,"\x81",1,0x48,0x10,I32M,0);
+	ins_add("adcq $I,ADDR",0,"\x83",1,0x48,0x10,I8M,0);
+	ins_add("adcw $I,ADDR","\x66","\x81",1,0,0x10,I16M|I_U,0);
+	ins_add("adcw $I,ADDR","\x66","\x83",1,0,0x10,I8M,0);
+	ins_add("adcb $I,ADDR",0,"\x80",1,0,0x10,I8M|I_U,0);
+	ins_add("adc %L2,ADDR",0,"\x11",1,0,0,RM,0);
+	ins_add("adc ADDR,%L2",0,"\x13",1,0,0,RM,0);
+	ins_add("adc %Q2,ADDR",0,"\x11",1,0x48,0,RM,0);
+	ins_add("adc ADDR,%Q2",0,"\x13",1,0x48,0,RM,0);
+	ins_add("adc %W2,ADDR","\x66","\x11",1,0,0,RM,0);
+	ins_add("adc ADDR,%W2","\x66","\x13",1,0,0,RM,0);
+	ins_add("adc %B2,ADDR",0,"\x10",1,0,0,RM,0);
+	ins_add("adc ADDR,%B2",0,"\x12",1,0,0,RM,0);
+
 	ins_add("sub %L2,%L1",0,"\x29",1,0,0,RR|I_MODRM,0);
 	ins_add("sub %Q2,%Q1",0,"\x29",1,0x48,0,RR|I_MODRM,0);
 	ins_add("sub %W2,%W1","\x66","\x29",1,0,0,RR|I_MODRM,0);
@@ -257,6 +296,33 @@ void ins_init_basic_op(void)
 	ins_add("sub ADDR,%W2","\x66","\x2b",1,0,0,RM,0);
 	ins_add("sub %B2,ADDR",0,"\x28",1,0,0,RM,0);
 	ins_add("sub ADDR,%B2",0,"\x2a",1,0,0,RM,0);
+
+	ins_add("sbb %L2,%L1",0,"\x19",1,0,0,RR|I_MODRM,0);
+	ins_add("sbb %Q2,%Q1",0,"\x19",1,0x48,0,RR|I_MODRM,0);
+	ins_add("sbb %W2,%W1","\x66","\x19",1,0,0,RR|I_MODRM,0);
+	ins_add("sbb %B2,%B1",0,"\x18",1,0,0,RR|I_MODRM,0);
+	ins_add("sbb $I,%L1",0,"\x81",1,0,0x18,I32R|I_MODRM|I_U,0);
+	ins_add("sbb $I,%L1",0,"\x83",1,0,0x18,I8R|I_MODRM,0);
+	ins_add("sbb $I,%Q1",0,"\x81",1,0x48,0x18,I32R|I_MODRM,0);
+	ins_add("sbb $I,%Q1",0,"\x83",1,0x48,0x18,I8R|I_MODRM,0);
+	ins_add("sbb $I,%W1","\x66","\x81",1,0,0x18,I16R|I_MODRM|I_U,0);
+	ins_add("sbb $I,%W1","\x66","\x83",1,0,0x18,I8R|I_MODRM,0);
+	ins_add("sbb $I,%B1",0,"\x80",1,0,0x18,I8R|I_MODRM|I_U,0);
+	ins_add("sbbl $I,ADDR",0,"\x81",1,0,0x18,I32M|I_U,0);
+	ins_add("sbbl $I,ADDR",0,"\x83",1,0,0x18,I8M,0);
+	ins_add("sbbq $I,ADDR",0,"\x81",1,0x48,0x18,I32M,0);
+	ins_add("sbbq $I,ADDR",0,"\x83",1,0x48,0x18,I8M,0);
+	ins_add("sbbw $I,ADDR","\x66","\x81",1,0,0x18,I16M|I_U,0);
+	ins_add("sbbw $I,ADDR","\x66","\x83",1,0,0x18,I8M,0);
+	ins_add("sbbb $I,ADDR",0,"\x80",1,0,0x18,I8M|I_U,0);
+	ins_add("sbb %L2,ADDR",0,"\x19",1,0,0,RM,0);
+	ins_add("sbb ADDR,%L2",0,"\x1b",1,0,0,RM,0);
+	ins_add("sbb %Q2,ADDR",0,"\x19",1,0x48,0,RM,0);
+	ins_add("sbb ADDR,%Q2",0,"\x1b",1,0x48,0,RM,0);
+	ins_add("sbb %W2,ADDR","\x66","\x19",1,0,0,RM,0);
+	ins_add("sbb ADDR,%W2","\x66","\x1b",1,0,0,RM,0);
+	ins_add("sbb %B2,ADDR",0,"\x18",1,0,0,RM,0);
+	ins_add("sbb ADDR,%B2",0,"\x1a",1,0,0,RM,0);
 
 	ins_add("and %L2,%L1",0,"\x21",1,0,0,RR|I_MODRM,0);
 	ins_add("and %Q2,%Q1",0,"\x21",1,0x48,0,RR|I_MODRM,0);

@@ -1,49 +1,3 @@
-struct l_word_list *p_locate_brackets(struct l_word_list *start,struct l_word_list *end)
-{
-	int n;
-	char *left,*right;
-	n=1;
-	if(!start)
-	{
-		return 0;
-	}
-	if(!strcmp(start->str,"("))
-	{
-		left="(";
-		right=")";
-	}
-	else if(!strcmp(start->str,"["))
-	{
-		left="[";
-		right="]";
-	}
-	else if(!strcmp(start->str,"{"))
-	{
-		left="{";
-		right="}";
-	}
-	else
-	{
-		return 0;
-	}
-	start=start->next;
-	while(start&&start!=end&&n)
-	{
-		if(!strcmp(start->str,left))
-		{
-			++n;
-		}
-		if(!strcmp(start->str,right))
-		{
-			--n;
-		}
-	}
-	if(start==end)
-	{
-		return 0;
-	}
-	return start;
-}
 struct syntax_tree
 {
 	char *name;
@@ -201,7 +155,7 @@ void parse_global_init(void)
 	keyw_list[5]="do";
 	keyw_list[6]="else";
 	keyw_list[7]="extern";
-	keyw_list[8]="for";
+	keyw_list[8]="float";
 	keyw_list[9]="goto";
 	keyw_list[10]="if";
 	keyw_list[11]="int";

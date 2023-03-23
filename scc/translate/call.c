@@ -27,6 +27,10 @@ void calculate_call(struct syntax_tree *root,struct expr_ret *ret)
 		--x;
 		calculate_expr(root->subtrees[x],&result);
 		deref_ptr(&result,root->subtrees[x]->line,root->subtrees[x]->col);
+		if(if_type_compat(result.type,result.decl,decl1->subtrees[x*2-1],decl1->subtrees[x*2],1))
+		{
+			error(root->line,root->col,"incompatible type.");
+		}
 		c_write("push ",5);
 		if(result.is_const)
 		{
@@ -56,8 +60,14 @@ void calculate_call(struct syntax_tree *root,struct expr_ret *ret)
 		decl1->subtrees[0]->value=new_name;
 	}
 	add_decl(type,decl,0,0,0,1);
-
-	c_write("call ",5);
+	if(is_basic_decl(decl)&&is_float_type(type))
+	{
+		c_write("fcall ",6);
+	}
+	else
+	{
+		c_write("call ",5);
+	}
 	c_write(new_name,strlen(new_name));
 	c_write(" ",1);
 	name=get_decl_id(func.decl);

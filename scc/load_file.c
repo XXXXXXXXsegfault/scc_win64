@@ -110,6 +110,7 @@ char *l_read_word(void)
 	int c,x;
 	int line,col;
 	char *msg;
+	int s1;
 	s=0;
 	x=0;
 	line=l_current_line;
@@ -127,10 +128,29 @@ char *l_read_word(void)
 	}
 	if(c>='A'&&c<='Z'||c>='a'&&c<='z'||c>='0'&&c<='9'||c=='_')
 	{
+		s1=0;
+		if(!(c>='0'&&c<='9'))
+		{
+			s1=2;
+		}
 		s=str_c_app2(s,x,c);
 		c=l_getc();
-		while(c>='A'&&c<='Z'||c>='a'&&c<='z'||c>='0'&&c<='9'||c=='_')
+		while(c>='A'&&c<='Z'||c>='a'&&c<='z'||c>='0'&&c<='9'||c=='_'||c=='.')
 		{
+			if(c=='.')
+			{
+				if(s1==0)
+				{
+					s=str_c_app2(s,x,c);
+					++x;
+					c=l_getc();
+					s1=1;
+				}
+				else
+				{
+					break;
+				}
+			}
 			s=str_c_app2(s,x,c);
 			++x;
 			c=l_getc();
